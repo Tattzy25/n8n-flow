@@ -1,0 +1,118 @@
+<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" style="height:64px;margin-right:32px"/>
+
+## Automotive pipeline flow (plain English)
+
+- **Step 0 — Hourly trigger starts the run**
+    - What happens: Every hour, a scheduler fires one new “automotive pipeline run.”[^1]
+    - Outcome: A clean start signal for the whole process.[^1]
+- **Step 1 — Search + scrape automotive news (Tavily)**
+    - Agents: None yet (this is the data collector).[^1]
+    - What they search for: Automotive / auto industry content from the last 60 minutes only (breakthroughs, regulation, drama, innovation, shock, “wow factor,” clickbait-friendly phrasing allowed).[^1]
+    - API/tool: Tavily search.[^1]
+    - What data is captured: URL, source, publish time, headline, and full raw page content (HTML/markdown/text); no summarizing and no rewriting.[^1]
+    - Outcome: A pile of raw reality data ready to be handed off.[^1]
+- **Step 2 — Store raw reality in Google Sheet 1 (RAW INGEST)**
+    - Where the data lives: **Google Sheet 1**.[^1]
+    - What each row is: One scraped article.[^1]
+    - Columns mentioned: URL, Source, Publish time, Raw content, Headline, Category guess (auto-generated), Status = RAWINGEST.[^1]
+    - Outcome: One “dumb handoff zone” where everything is captured fast and nothing is judged yet.[^1]
+- **Step 3 — Buffer 1 (about 3 minutes)**
+    - What “buffer” means: The system waits briefly so Sheet 1 finishes writing and becomes stable (no partial rows, no race conditions).[^1]
+    - Outcome: Downstream agents won’t read half-written data.[^1]
+- **Step 4 — Policy triage (3 agents) reads Sheet 1**
+    - Agents: **3 policy agents**.[^1]
+    - What they do: They check each article against TikTok Community Guidelines + Creator policies / Marketplace rules, plus safety/misinformation risk, violence/illegal framing, medical/financial claims, dangerous behavior cues.[^1]
+    - What they do NOT do: They do not rewrite anything; they only label.[^1]
+    - Decisions produced per article: PolicyRisk (NONE/LOW/MED/HIGH), PolicyNotes, AllowedFraming (question/reported/observational), and a pass/kill/restrict decision.[^1]
+    - Outcome: Every raw article is labeled as safe, restricted, or dead before any “viral” thinking happens.[^1]
+- **Step 5 — Store policy results in Google Sheet 2 (POLICY-SORTED)**
+    - Where the data lives: **Google Sheet 2**.[^1]
+    - What each row is: One article carried forward with policy labels.[^1]
+    - Columns mentioned: URL, Headline, Raw content, PolicyRisk, AllowedFraming, Status = POLICYPASSED (or killed/restricted depending on risk).[^1]
+    - Outcome: A “cleaner reality” set that is safe enough to score for virality.[^1]
+- **Step 6 — Buffer 2 (about 3 minutes)**
+    - What happens: Wait so Sheet 2 is finished and stable before viral scoring.[^1]
+    - Outcome: Viral agents score a locked set, not moving targets.[^1]
+- **Step 7 — Viral potential filter (2 agents) reads Sheet 2**
+    - Agents: **2 viral scoring agents**.[^1]
+    - What they look for: Potential viral TikTok content ideas based on the article (not actual videos yet).[^1]
+    - Questions they ask: “Would this stop a scroll in ~1.5 seconds?”, “Can it generate comments?”, “Can it be visualized?”, “Can it be explained in 1 sentence?”.[^1]
+    - What they produce: Scores like Wow factor (1–10), clickbait elasticity, argument/comment potential, visual implication, plus notes.[^1]
+    - What gets removed: Junk/low-score items get filtered out; only a small number survive (example mentioned: “only 7 survives”).[^1]
+    - Outcome: A short list of automotive stories worth turning into content ideas.[^1]
+- **Step 8 — Store survivors in Google Sheet 3 (VIRAL CANDIDATES)**
+    - Where the data lives: **Google Sheet 3**.[^1]
+    - What each row is: One surviving article.[^1]
+    - Columns mentioned: URL, Headline, WowScore, ViralAngleNotes, CommentBaitPotential, Status = VIRALCANDIDATE.[^1]
+    - Outcome: The “attention shortlist” ready for brainstorming video concepts.[^1]
+- **Step 9 — Buffer 3 (about 3 minutes)**
+    - What happens: Wait so Sheet 3 is stable before concept expansion.[^1]
+    - Outcome: Expansion agents don’t build ideas off an incomplete survivor list.[^1]
+- **Step 10 — Content expansion / brainstorming (2 agents) reads Sheet 3**
+    - Agents: **2 expansion agents**.[^1]
+    - What they do: For each surviving article, they brainstorm multiple TikTok video concepts using only that data (they can do extra confirmation searches if needed, but not bring in unrelated junk).[^1]
+    - Key rule: They do not invent new topics; they re-angle the same event.[^1]
+    - Output per article: Multiple video angles, multiple hooks, emotional triggers, suggested formats; no full scripts yet, no hashtags yet.[^1]
+    - Outcome: One article becomes many possible videos.[^1]
+- **Step 11 — Store concepts in Google Sheet 4 (CONCEPT STACK)**
+    - Where the data lives: **Google Sheet 4**.[^1]
+    - What each row is: **One video concept** (not one article).[^1]
+    - Columns mentioned: Source article, Video angle, Hook concept, Emotion lever, Suggested format (short/loop/story), Status = CONCEPTREADY.[^1]
+    - Outcome: A big pile of concrete video ideas ready for brutal editing.[^1]
+- **Step 12 — Buffer 4 (about 3 minutes)**
+    - What happens: Wait so concept generation finishes and the concept pool is stable.[^1]
+    - Outcome: Validators rank the full set, not partial batches.[^1]
+- **Step 13 — Validation layer (2 agents) reads Sheet 4**
+    - Agents: **2 validation agents**.[^1]
+    - What they do: They remove weak concepts, remove duplicates, remove risky phrasing, and rank the remaining concepts by “algorithm fit” (retention likelihood, comment likelihood, clarity, format match).[^1]
+    - Outcome: Only top-tier concepts survive to become scripts.[^1]
+- **Step 14 — Store approved concepts in Google Sheet 5 (APPROVED CONCEPTS)**
+    - Where the data lives: **Google Sheet 5**.[^1]
+    - What each row is: One approved video concept with ranking/framing.[^1]
+    - Columns mentioned: Video concept, Final rank, Approved framing, Status = APPROVEDFORSCRIPT.[^1]
+    - Outcome: A short list of “yes, actually make this” concepts.[^1]
+- **Step 15 — Buffer 5 (about 3 minutes)**
+    - What happens: Wait so Sheet 5 is stable before scripting.[^1]
+    - Outcome: The script agent works from a locked approved list.[^1]
+- **Step 16 — Script + metadata synthesis (1 agent) reads Sheet 5**
+    - Agents: **1 script/metadata agent**.[^1]
+    - What they do: For each approved concept they create:
+        - Final script
+        - On-screen text
+        - Hook (first 1.5 seconds)
+        - Caption
+        - Hashtags
+        - Description
+        - CTA style (comment/save/follow)[^1]
+    - Outcome: Each concept becomes a fully specified “ready-to-generate video” package.[^1]
+- **Step 17 — Store final package in Google Sheet 6 (READY FOR VIDEO)**
+    - Where the data lives: **Google Sheet 6**.[^1]
+    - What each row is: One fully executable video package.[^1]
+    - Columns mentioned: Script, Prompt for video generation, Caption, Hashtags, Description, Status = READYFORVIDEO.[^1]
+    - Outcome: A queue of ready-to-render videos.[^1]
+- **Step 18 — Video generation (Sora / Veo / Replicate / Fal) reads Sheet 6**
+    - Agents: Not described as “agents” here; this is the generation tool step.[^1]
+    - API/tools mentioned: Sora, Veo, Replicate, Fal (and “doesn’t matter who we use”).[^1]
+    - What gets sent: Script + visual instructions (humans can be described in text; no avatars needed).[^1]
+    - Output: Video file + thumbnail frame.[^1]
+    - Outcome: Real video assets exist for each row.[^1]
+- **Step 19 — Scheduling + upload/publish (algorithm agent)**
+    - Agents: **1 algorithm/scheduling agent** (separate pipeline).[^1]
+    - What it does: Picks times/dates/spacing based on content and past performance logic, then uploads/posts via TikTok API.[^1]
+    - API: TikTok API upload.[^1]
+    - Outcome: Videos get posted to the TikTok account automatically.[^1]
+- **Step 20 — Store posted results + performance in Google Sheet 7 (PERFORMANCE LOG)**
+    - Where the data lives: **Google Sheet 7** (performance log).[^1]
+    - What each row is: One posted video and its metrics.[^1]
+    - Metrics mentioned: Watch time, completion rate, comments, saves, velocity, account health impact (and publish info like video id/time is implied in the “performance log” step).[^1]
+    - Outcome: Reality feedback is recorded.[^1]
+- **Step 21 — Silent observer (always on, local, read-only to the pipeline)**
+    - Agents: **1 silent observer** (local).[^1]
+    - What it does: Watches Sheet 1 through Sheet 7 and records inputs, decisions, transformations, outputs, and outcomes; it produces training data/insights but does not approve/block/rewrite or change the pipeline automatically.[^1]
+    - Where its data lives: Outside Google Sheets (event logs / local storage), as described.[^1]
+    - Outcome: The system builds “institutional memory” from every run without touching the live flow.[^1]
+
+<div align="center">⁂</div>
+
+[^1]: CONVERSATION.txt
+
