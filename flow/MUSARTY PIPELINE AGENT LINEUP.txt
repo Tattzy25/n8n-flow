@@ -1,0 +1,32 @@
+Here’s the agent count per step that actually uses agents, plus the total.
+
+Agents by step
+Step 3.5 (Dedup / Canonicalization gate): 1 agent (Dedup Agent).
+​
+
+Step 4 (Policy triage): 3 agents (Policy Agent A/B/C).
+​
+
+Step 7 (Viral potential filter): 2 agents (Viral Scoring Agents).
+​
+
+Step 10 (Content expansion / brainstorming): 2 agents (Expansion Agents).
+​
+
+Step 13 (Validation layer): 2 agents (Validators / algorithm-fit editors).
+​
+
+Step 16 (Script + metadata synthesis): 1 agent (Script/Metadata Agent).
+​
+
+Step 19 (Scheduling + publish): 1 agent (Algorithm/Scheduling Agent).
+​
+
+Step 21 (Silent observer): 1 agent (Silent Observer, local, read-only).
+​
+
+Total agents
+Total = 13 agents (counting the silent observer and the dedup agent).
+​
+
+If you want the “runtime concurrency” number (how many run at the same time per stage), it’s basically: 1 → 3 → 2 → 2 → 2 → 1 → 1 (plus the silent observer always on).

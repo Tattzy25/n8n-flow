@@ -1,0 +1,55 @@
+---
+config:
+  theme: redux
+---
+
+flowchart TD
+    %% STEP 1: HOURLY TRIGGER
+    A["1. Hourly Trigger<br>Wake up every hour<br>Search Tavily API<br>Automotive - 60min<br>Focus: breaking/drama/innovation"]
+    %% STEP 2: RAW INGEST
+    B["2. Raw Ingest → Google Sheet #1<br>Dump: URL, source, publish time, headline, full article, category guess, status=RAW_INGEST<br>No filtering/judgment"]
+    %% STEP 3: BUFFER
+    C["3. Buffer<br>Wait 3 mins"]
+    %% STEP 4: POLICY TRIAGE
+    D["4. Policy Triage → Sheet #2<br>Label risk & allowed framing<br>If Policy Risk=HIGH ⇒ STOP"]
+    %% STEP 5: BUFFER
+    E["5. Buffer<br>Wait 3 mins"]
+    %% STEP 6: VIRAL SCORING
+    F["6. Viral Scoring → Sheet #3<br>Scroll-stopping? Comment? Visual? Fast explain?<br>Only high-score articles survive"]
+    %% STEP 7: BUFFER
+    G["7. Buffer<br>Wait 3 mins"]
+    %% STEP 8: CONTENT EXPANSION
+    H["8. Content Expansion → Sheet #4<br>Create 3-10 video ideas/hook/emotion per article<br>Each idea=Row (Concept Stack)"]
+    %% STEP 9: BUFFER
+    I["9. Buffer<br>Wait 3 mins"]
+    %% STEP 10: VALIDATION
+    J["10. Validation → Sheet #5<br>Delete weak ideas<br>Remove risky/duplicates<br>Rank for algorithm fit<br>Best concepts survive"]
+    %% STEP 11: BUFFER
+    K["11. Buffer<br>Wait 3 mins"]
+    %% STEP 12: SCRIPT + METADATA
+    L["12. Script + Metadata → Sheet #6<br>Script, hook, on-screen text, caption, hashtags, description, CTA<br>Ready for video"]
+    %% STEP 13: VIDEO GENERATION
+    M["13. Video Generation<br>Create video file + thumbnail<br>Save to Sheet #6<br>⚠️ VIDEO GETS MADE HERE ⚠️"]
+    %% STEP 14: SCHEDULING/UPLOAD
+    N["14. Scheduling + Upload → Sheet #7<br>Schedule post<br>Upload to TikTok<br>Save video ID, time, status, initial metrics"]
+    %% STEP 15: PERFORMANCE COLLECTION
+    O["15. Performance Collection<br>Update views, watch time, likes, comments, saves<br>Feedback only"]
+
+    %% Connections
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+    F --> G
+    G --> H
+    H --> I
+    I --> J
+    J --> K
+    K --> L
+    L --> M
+    M --> N
+    N --> O
+
+    %% Special decision: High policy risk stops
+    D -- "If Policy Risk=HIGH" --> X["Article stopped (HIGH risk)"]

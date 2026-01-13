@@ -1,0 +1,34 @@
+here are the one-paragraph core job descriptions for each agent:
+​
+
+Dedup / Canonicalization Agent (Step 3.5):
+This agent's core job is to detect and eliminate duplicate stories so downstream agents don't waste cycles creating redundant videos from syndicated news, rewrites, or multiple sources covering the same event. It compares each raw article against previously seen items and other current rows, decides which version is "canonical," and marks all others as duplicates that should be dropped before policy triage reads them.
+​
+
+Policy Triage Agents x3 (Step 4):
+These three agents exist solely to evaluate and label risk so content never reaches TikTok if it violates platform rules or creator guidelines. Each agent independently reads raw content, assesses policy severity (NONE/LOW/MED/HIGH), identifies specific risks (misinformation, violence, medical claims, dangerous behavior, etc.), and outputs a label + decision (pass/restrict/kill) without rewriting, brainstorming, or adding any creative value.
+​
+
+Viral Potential Filter Agents x2 (Step 7):
+These two agents act as the "attention gate" by determining which policy-safe stories are actually worth turning into content ideas. They score each story for scroll-stopping potential in ~1.5 seconds, comment bait likelihood, visual viability, and simplicity of explanation, then ruthlessly drop anything that scores too low so only truly high-leverage viral seeds move forward to the brainstorming stage.
+​
+
+Content Expansion / Brainstorming Agents x2 (Step 10):
+These two agents convert each approved story into multiple distinct video concept angles without inventing new topics or doing full scripting. Their job is to extract 3–10 different hooks, POVs, emotional levers, and suggested formats from the same underlying article, optionally doing tight fact-checking only, so each story becomes a diverse concept pool ready for brutal validation.
+​
+
+Validation Agents x2 (Step 13):
+These two agents are ruthless editors whose job is to protect output quality and reduce wasted compute by killing weak concepts, stripping risky phrasing, removing duplicates, enforcing topic saturation rules, and ranking survivors by algorithm-fit signals like retention likelihood, clarity, and comment potential. Only the top-tier concepts they approve move to scripting.
+​
+
+Script + Metadata Synthesis Agent x1 (Step 16):
+This agent's job is to convert approved concepts into fully executable posting packages by writing the final hook-optimized script, defining on-screen text, and generating all posting metadata (captions, hashtags, descriptions, CTA styles) while respecting approved framing and keeping everything structured so generators and uploaders can execute without interpretation.
+​
+
+Scheduling + Publish (Algorithm) Agent x1 (Step 19):
+This agent is responsible for distribution strategy and execution—deciding what to post, when to post it, and how to space posts to avoid cannibalization or spam signals, then uploading via TikTok API with the generated assets and metadata. It also enforces kill-switch logic to pause posting automatically when account risk or performance metrics signal danger.
+​
+
+Silent Observer Agent x1 (Step 21):
+This agent's core job is continuous, read-only monitoring for institutional memory and safe offline improvement. It watches every pipeline stage (Sheets 1–7) and logs all inputs, decisions, transformations, outputs, and downstream performance outcomes to build a training dataset—without approving, blocking, or auto-updating anything—so you can later audit drift, detect agent biases, and fine-tune heuristics based on real performance data.
+​

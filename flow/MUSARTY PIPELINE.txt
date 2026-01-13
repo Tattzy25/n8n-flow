@@ -1,0 +1,402 @@
+Steps 0–5 (with buffers included, but buffers are not counted as steps)
+Step 0 — Hourly trigger starts the run
+What this step does:
+
+Starts one new “pipeline run” every hour (a single run ID / batch).
+​
+
+Sets the run state to “started” so every later step knows which batch it belongs to.
+​
+
+Agent job (exactly):
+
+No agents here. This is just the scheduler/trigger that kicks the whole system off.
+​
+
+Buffer handling (not a step):
+
+No buffer before Step 0.
+​
+
+Outcome:
+
+One clean hourly run begins.
+​
+
+Step 1 — Search + scrape automotive news (Tavily)
+What this step does:
+
+Queries for automotive/auto-industry content limited to the last 60 minutes with focus on breakthroughs, regulation, drama, innovation, shock/wow-factor (clickbait-friendly language allowed).
+​
+
+Collects raw sources and pulls the raw page content (HTML/markdown/text) without summarizing or rewriting anything.
+​
+
+Produces one “raw evidence packet” per result: URL + source + publish time + headline + raw content.
+​
+
+Agent job (exactly):
+
+No LLM agents here; this is the data collector’s job.
+
+Its job is ONLY:
+
+Run the search.
+
+Fetch/crawl each result.
+
+Capture raw content + metadata.
+
+Do not filter, judge, rewrite, or summarize.
+​
+
+Buffer handling (not a step):
+
+No buffer inside Step 1; the buffer comes after data is written to the sheet.
+​
+
+Outcome:
+
+A pile of raw, unmodified automotive news records ready for storage/handoff.
+​
+
+Step 2 — Store raw reality in Google Sheet 1 (RAW INGEST)
+What this step does:
+
+Writes each scraped article as one row into Google Sheet 1.
+​
+
+Adds a simple “Status = RAWINGEST” to mark these rows as raw/unprocessed.
+​
+
+Keeps the sheet as a dumb handoff zone (drop-off/pick-up point) between systems.
+​
+
+Agent job (exactly):
+
+No LLM agents here; this is the ingestion writer’s job.
+
+Its job is ONLY:
+
+Append rows.
+
+Ensure columns are populated correctly (URL, Source, Publish time, Raw content, Headline, Category guess auto-generated, Status).
+​
+
+Buffer handling (not a step):
+
+After writing to Sheet 1, wait ~3 minutes so the sheet is stable and fully written before any agent reads it.
+​
+
+Outcome:
+
+Sheet 1 contains the raw data for this run, fully written and ready for the next stage.
+​
+
+Step 3.5 — Deduplication / Canonicalization gate (NEW — fixes duplicates)
+What this step does:
+
+Reads the newly written rows in Sheet 1 and detects when multiple rows are actually the same underlying story/event (same news published by many sites, rewrites, syndication).
+​
+
+Marks duplicates so they do not get processed multiple times downstream.
+​
+
+Ensures only one canonical version of a story is allowed to move forward into policy triage.
+​
+
+Agent job (exactly):
+
+Dedup Agent’s job is ONLY:
+
+Compare each new RAWINGEST row against other rows (and previously seen items) to detect “same event” duplicates.
+​
+
+Decide: CANONICAL (keep) vs DUPLICATE (drop/stop).
+​
+
+Write the decision back (either to Sheet 1 status or into a deduped handoff).
+​
+
+It does NOT:
+
+Rewrite content.
+
+Generate angles.
+
+Score virality.
+
+Apply TikTok policy (that’s Step 4).
+​
+
+Buffer handling (not a step):
+
+If the dedup step writes to a new handoff sheet, wait ~3 minutes after writing before Step 4 reads.
+​
+
+Outcome:
+
+Downstream agents don’t waste time generating multiple videos from the same story.
+​
+
+Step 4 — Policy triage (3 agents) reads Sheet 1
+What this step does:
+
+Takes each canonical (non-duplicate) raw item and evaluates whether it can safely be turned into TikTok content.
+​
+
+Checks against TikTok Community Guidelines + creator/marketplace rules and safety/misinformation risk and sensitive categories (violence/illegal framing, medical/financial claims, dangerous behavior cues).
+​
+
+Produces labels only (no rewriting): PolicyRisk, PolicyNotes, AllowedFraming, and a pass/kill/restrict decision.
+​
+
+Agent job (exactly):
+
+There are 3 policy agents, and each agent’s job is ONLY:
+
+Read the raw content (not summaries).
+
+Identify risk category and severity.
+
+Output:
+
+PolicyRisk = NONE / LOW / MED / HIGH
+
+PolicyNotes = why
+
+AllowedFraming = question / reported / observational
+
+Decision = pass / restrict / kill
+​
+
+They do NOT:
+
+Try to make it viral.
+
+Brainstorm hooks.
+
+Write scripts.
+
+Generate hashtags.
+
+Generate video prompts.
+​
+
+Buffer handling (not a step):
+
+After the policy agents write their results, wait ~3 minutes before the next stage reads the policy-sorted output.
+​
+
+Outcome:
+
+Every story is labeled safe/restricted/dead before any creative stages touch it.
+​
+
+Step 5 — Store policy results in Google Sheet 2 (POLICY-SORTED)
+What this step does:
+
+Writes the triage results into Google Sheet 2 as the clean handoff for the next stage.
+​
+
+Carries forward: URL, Headline, Raw content, PolicyRisk, AllowedFraming, Status = POLICYPASSED (or killed/restricted).
+​
+
+Agent job (exactly):
+
+No LLM agents here; this is the policy-output writer’s job.
+
+Its job is ONLY:
+
+Take the policy agents’ labels.
+
+Store them in Sheet 2 with correct columns and statuses.
+​
+
+Buffer handling (not a step):
+
+After writing Sheet 2, wait ~3 minutes before viral scoring agents read it.
+​
+
+Outcome:
+
+A stable, policy-labeled dataset exists that is safe enough to score for virality next.
+​
+
+If you confirm that “Step 3.5 Dedup gate” is considered a real step in your numbering (or you want it labeled Step 3 instead), the next message can continue with Steps 6–10 in the same format.
+
+Alright let's go for the next final six or 7 steps I don't know how many are left
+Final steps (what’s left after Step 15)
+Step 16 — Script + metadata synthesis (1 agent) reads Google Sheet 5
+What happens:
+
+The script/metadata agent reads only the approved concepts from Google Sheet 5 and turns each one into a complete, executable TikTok package.
+​
+
+Script/metadata agent’s exact job:
+
+For each approved concept, generate:
+
+Final spoken/narration script (tight, short-form pacing).
+​
+
+Hook wording for the first ~1–1.5 seconds.
+​
+
+On-screen text plan (what text appears, and when).
+​
+
+Caption, hashtag set, description, CTA style (comment/save/follow).
+​
+
+Enforce the approved framing from Sheet 5 (don’t re-introduce policy risk that was already decided).
+​
+
+Output must be structured so it can be copied directly into a generator and later into TikTok upload fields.
+​
+
+Buffer after this step:
+
+Wait ~3 minutes so the final-package writes are complete before video generation reads them.
+​
+
+Step 17 — Store final package in Google Sheet 6 (READY FOR VIDEO)
+What happens:
+
+Every executable package from Step 16 is written into Google Sheet 6.
+​
+
+What each row in Sheet 6 represents:
+
+One ready-to-render video package (not just an idea).
+​
+
+What Sheet 6 must contain (exactly):
+
+Script + video generation prompt + caption + hashtags + description + status = READYFORVIDEO.
+​
+
+Job of this step:
+
+Freeze a clean “render queue” so generation and posting systems don’t depend on the creative agents directly.
+​
+
+Buffer after this step:
+
+Wait ~3 minutes so the queue is stable before generation starts.
+​
+
+Step 18 — Video generation (Sora / Veo / Replicate / Fal) reads Google Sheet 6
+What happens:
+
+The generation tool reads each READYFORVIDEO row from Google Sheet 6 and creates the actual video asset.
+​
+
+Generation step’s exact job:
+
+Take the script + visual instructions (including humans if desired; no avatars required).
+​
+
+Generate:
+
+Video file
+
+Thumbnail frame
+​
+
+Save the output reference (file path / URL / asset ID) back to the same row (or a linked row) so the scheduler can post the correct asset later.
+​
+
+Important clarity:
+
+This step creates the video file, but does not publish it to TikTok.
+​
+
+Buffer after this step:
+
+Wait ~3 minutes so asset generation outputs/links are fully written before the scheduler reads them.
+​
+
+Step 19 — Scheduling + upload/publish (algorithm agent) reads the generated assets and posts to TikTok
+What happens:
+
+The algorithm/scheduling agent decides when to post each generated video and then uploads/posts it via the TikTok API.
+​
+
+This agent’s exact job:
+
+Read:
+
+The final caption/hashtags/description from Sheet 6.
+​
+
+The generated video file location/asset ID from Step 18 outputs.
+​
+
+Decide:
+
+Post time/date
+
+Spacing between posts (avoid spam behavior and self-cannibalization).
+​
+
+Execute:
+
+Upload video via TikTok API
+
+Attach caption/hashtags/description
+
+Confirm success/failure response.
+​
+
+Kill switch is enforced here (still inside Step 19):
+
+If policy strikes spike, view velocity collapses, or suppression signals show up, the system can automatically pause posting instead of continuing.
+​
+
+Buffer after this step:
+
+Wait ~3 minutes after posting/logging so the performance log write completes cleanly.
+​
+
+Step 20 — Store posted results + performance in Google Sheet 7 (PERFORMANCE LOG)
+What happens:
+
+For every successfully posted video, the system writes a row into Google Sheet 7 that represents “a real TikTok post that exists.”
+​
+
+What each row in Sheet 7 represents:
+
+One posted video plus its ID/time/account and performance metrics as they arrive.
+​
+
+What must be recorded:
+
+Publish info (video ID, post time, upload status) + metrics like watch time, completion, comments, saves, velocity, account health impact.
+​
+
+Job of this step:
+
+Make posting outcomes auditable and feedable back into future runs.
+​
+
+Step 21 — Feedback loop + silent observer (always on)
+What happens (feedback loop):
+
+Sheet 7’s real performance data becomes input for future decisions:
+
+Viral scoring behavior improves (Step 7 learns what truly performs).
+​
+
+Validation improves (Step 12/13 learns what “looked good” but flopped).
+​
+
+Scheduling improves (Step 19 learns timing/spacing effects).
+​
+
+What happens (silent observer):
+
+A local, read-only silent observer watches Sheet 1 through Sheet 7 and logs inputs, decisions, transformations, outputs, and final outcomes for training/insight—without changing the live pipeline automatically.
+​
+
+If you want, the next message can be a single “one-line-per-step” version of Steps 0–21 (with the sheet number on every line) so it’s even easier to paste into Mermaid.
